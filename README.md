@@ -1,5 +1,6 @@
-# 🏙️ UrbanPlan AI
+# UrbanPlan AI — Agentic Permit Intelligence Platform
 
+Multi-agent AI system for urban planning workflows: permit feasibility analysis, BigQuery-grounded cost estimation, automated dossier generation and MLOps-ready deployment.
 
 ## Project Attribution & Role
 
@@ -7,132 +8,157 @@ This repository is based on an academic MLOps team project.
 
 I was a contributing team member, not the sole author of the full original system. This portfolio version restructures and documents the project to present its architecture, technical scope and AI platform design more clearly.
 
-My contribution is framed around AI system understanding, repository organization, technical documentation, product positioning and architectural interpretation of the solution.
+My contribution is focused on AI system understanding, repository organization, technical documentation, product positioning and architectural interpretation of the solution.
 
-The original project context and attribution are documented in `ATTRIBUTION.md`.
+The original project context and attribution are documented in [ATTRIBUTION.md](ATTRIBUTION.md).
 
+## Business Context
 
-Un sistema de Inteligencia Artificial basado en Arquitectura Multi-Agente diseñado para asesorar sobre viabilidad legal, presupuestos y plazos de tramitación de licencias urbanísticas y de obra.
+Urban planning and construction permit workflows are complex, slow and highly dependent on fragmented regulatory and cost information.
 
-Este proyecto ha sido desarrollado utilizando **Google Agent Development Kit (ADK)** de Vertex AI, orquestando múltiples agentes potenciados por el modelo `gemini-2.5-flash`.
+This prototype explores how a multi-agent AI system can support early-stage permit intelligence by combining:
 
----
+- Regulatory feasibility reasoning.
+- BigQuery-grounded cost and timeline estimation.
+- Automated executive dossier generation.
+- MLOps-oriented packaging with Docker and CI/CD workflows.
 
-## 🚀 Arquitectura del Sistema
+The goal is not to replace legal or technical professionals. The goal is to assist decision-making by turning complex urban planning information into structured, traceable and actionable outputs.
 
-El proyecto implementa un patrón **Supervisor-Worker**, distribuyendo las tareas complejas entre especialistas:
+## System Architecture
 
-1. **Supervisor (`supervisor_urbanplan`)**: 
-   - Analiza la intención del usuario.
-   - Enruta la petición al sub-agente experto correspondiente.
-   - Es capaz de invocar la herramienta externa MCP para compilar y generar dossiers ejecutivos.
-2. **Sub-Agente Normativo (`agente_normativo`)**: 
-   - Arquitecto experto en el Código Técnico de la Edificación (CTE) y regulaciones del BOE. Responde a preguntas sobre viabilidad legal, alturas libres, normativas de incendios, etc., utilizando el conocimiento experto del LLM base.
-3. **Sub-Agente Estimador (`agente_estimador`)**: 
-   - Arquitecto Técnico especializado en costes y plazos.
-   - **Grounding (BigQuery)**: No alucina precios. Genera y ejecuta dinámicamente **código SQL** contra una base de datos histórica alojada en Google Cloud Platform, garantizando que los cálculos (medias, sumas, análisis) sean matemáticamente exactos y basados en datos empíricos.
+The project follows a supervisor-worker multi-agent architecture.
 
----
+Supervisor Agent  
+- Regulatory Agent: legal and planning feasibility reasoning.
+- Estimation Agent: BigQuery-grounded cost and timeline estimation.
+- Dossier Tool: Markdown permit dossier generation.
 
-## 🛠️ Tecnologías y Prácticas MLOps
+## Core Components
 
-- **Framework de Agentes**: Google ADK (Agent Development Kit).
-- **Modelos de Lenguaje**: `gemini-2.5-flash`.
-- **Bases de Datos & Data Engineering**: Google BigQuery (`google-cloud-bigquery`). Script de automatización para creación y población masiva del dataset.
-- **Tools / MCP**: Protocolos de herramientas nativas para operaciones I/O (escritura de archivos en `dossiers_generados/`).
-- **Gestor de Entornos**: `uv` (Empaquetado rápido y determinista con soporte para `uv.lock`).
-- **CI/CD Pipeline**: GitHub Actions automatizadas.
-  - *Continuous Integration (CI)*: Checkout, instalación determinista de dependencias, y chequeo de sintaxis con `python -m py_compile` por cada push a `main`.
-  - *Continuous Deployment (CD)*: Construcción de imagen Docker limpia y simulación de despliegue a **Google Cloud Run**.
+### Supervisor Agent
 
----
+The supervisor agent interprets the user request, identifies the required task and routes execution to the appropriate specialist agent or tool.
 
-## ⚙️ Configuración del Entorno (`.env` y Credenciales)
+### Regulatory Agent
 
-Para que el proyecto funcione en la máquina de otra persona (o del evaluador), es obligatorio configurar correctamente las credenciales de entorno y de nube.
+The regulatory agent handles urban planning and construction-related feasibility questions. It is designed to reason over legal, technical and planning constraints using the base model and project context.
 
-### 1. Requisitos Previos
-- Instalar Python 3.12+
-- Instalar el gestor de paquetes ultrarrápido `uv`:
-  ```bash
-  pip install uv
-  ```
-- Tener instalada la línea de comandos de Google Cloud (`gcloud CLI`).
+### Estimation Agent
 
-### 2. Autenticación en Google Cloud
-Como el agente Estimador necesita hacer consultas reales a BigQuery, se debe tener una sesión activa con permisos en el proyecto de GCP. En la terminal, ejecuta:
-```bash
-gcloud auth application-default login
-```
-*Esto abrirá el navegador para iniciar sesión con la cuenta de Google que tenga acceso al proyecto.*
+The estimation agent is connected to BigQuery through a controlled tool. It does not invent costs or timelines. It retrieves structured historical data and uses SQL-grounded calculations to support estimates.
 
-### 3. Archivo de Variables (`.env`)
-En la raíz del proyecto, debes crear un archivo llamado `.env` y rellenarlo con los siguientes valores:
+### Dossier Generation Tool
 
-```env
-# El identificador de tu proyecto en Google Cloud (donde estara alojado BigQuery)
-GOOGLE_CLOUD_PROJECT=mi-id-de-proyecto-gcp
+The dossier tool converts agent output into a Markdown-based executive report. This transforms the system from a chatbot into an operational workflow that produces a reusable deliverable.
 
-# Modelo de Gemini que empleara la arquitectura multi-agente
-GEMINI_MODEL=gemini-2.5-flash
-```
+## Technical Stack
 
-*(Importante para el evaluador: asegúrese de asignar a `GOOGLE_CLOUD_PROJECT` el ID de un proyecto de GCP sobre el cual tenga permisos de lectura/escritura en BigQuery).*
+- Python 3.12
+- Google Agent Development Kit
+- Gemini 2.5 Flash
+- Google BigQuery
+- Google Cloud Platform
+- Docker
+- GitHub Actions
+- uv dependency management
 
----
+## MLOps Design
 
-## 🚀 Despliegue en Local
+The repository includes MLOps-oriented components for reproducibility and deployment readiness:
 
-### 1. Instalar Dependencias
-Instala todas las dependencias exactamente como están definidas en la arquitectura:
-```bash
+- Deterministic dependency management with uv.lock.
+- Dockerfile for containerized execution.
+- GitHub Actions workflow for CI/CD validation.
+- Environment variable template through .env.example.
+- BigQuery setup script for data initialization.
+- Modular source code structure under src/urbanplan.
+
+## Repository Structure
+
+- .github/workflows/ — CI/CD workflow.
+- docs/ — Architecture notes and project documentation.
+- examples/dossiers/ — Curated sample dossier output.
+- notebooks/ — Experimental indexing and research notebook.
+- src/urbanplan/ — Core multi-agent system.
+- .env.example — Environment variable template.
+- Dockerfile — Container definition.
+- main.py — Local project entrypoint.
+- pyproject.toml — Project metadata and dependencies.
+- setup_bigquery.py — BigQuery initialization script.
+- uv.lock — Locked dependency graph.
+- ATTRIBUTION.md — Project attribution and contribution scope.
+
+## Local Setup
+
+### 1. Install dependencies
+
 uv sync --frozen
-```
 
-### 2. Poblar la Base de Datos (Solo si cambias de proyecto GCP)
-La base de datos ya se encuentra desplegada y poblada con 100 registros en el proyecto original (`mlops-entrega`). 
-**No hace falta ejecutar nada si mantienes ese proyecto y tienes acceso.**
+### 2. Configure environment variables
 
-Sin embargo, si clonas este repositorio y configuras en el `.env` un `GOOGLE_CLOUD_PROJECT` **nuevo o distinto**, debes inicializar la base de datos ejecutando el script de Data Engineering:
-```bash
+Create a .env file based on .env.example:
+
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id  
+GEMINI_MODEL=gemini-2.5-flash  
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+
+### 3. Authenticate with Google Cloud
+
+gcloud auth application-default login
+
+### 4. Initialize BigQuery data
+
+Run this only if you are using a new Google Cloud project:
+
 uv run python setup_bigquery.py
-```
-*(Esto se conectara a tu nuevo GCP, creara el dataset `agente_urbanistico` y la tabla, inyectando los 100 registros realistas para que el agente pueda funcionar).*
 
-### 3. Arrancar el Agente ADK
-Levanta el servidor local de agentes:
-```bash
+### 5. Launch the agent system
+
 uv run adk web src
-```
-Accede en tu navegador a `http://localhost:8000` y chatea con `supervisor_urbanplan`.
 
----
+Then open the local ADK interface and interact with the supervisor agent.
 
-## 💬 Casos de Uso y Prompts de Prueba
+## Example Prompts
 
-Para testear las capacidades del sistema en la interfaz de ADK, puedes probar estos Prompts:
+Regulatory feasibility:
 
-1. **Test del Agente Normativo (Conocimiento Legal)**: 
-   > *"¿Cuáles son los requisitos de altura libre mínima en viviendas según el CTE?"*
+“What are the minimum free-height requirements for residential buildings under Spanish technical building regulations?”
 
-2. **Test del Agente Estimador (SQL Autónomo a BigQuery)**: 
-   > *"Basándote en el histórico, ¿cuál es la tasa media de licencia y los días de tramitación para una obra mayor residencial en Madrid?"*
+BigQuery-grounded estimation:
 
-3. **Test de la Herramienta MCP (Escritura Automática de Ficheros)**: 
-   > *"Calcula el presupuesto de una obra de local en Valencia de 200m2 y génerame un dossier en disco con los resultados."*
+“Based on historical data, what is the average permit fee and processing time for a major residential project in Madrid?”
 
----
+Dossier generation:
 
-## 🐳 Despliegue en Producción (Docker)
+“Estimate the cost of a 200 m² commercial renovation in Valencia and generate a permit dossier with the results.”
 
-El proyecto está preparado para *Continuous Deployment* e incluye un `Dockerfile` optimizado y libre de residuos locales.
+## Production-Oriented Packaging
 
-Para compilar la imagen de producción:
-```bash
+Build the Docker image:
+
 docker build -t urbanplan-ai:latest .
-```
 
-Para correr el contenedor (asegurando el mapeo de credenciales de Google Cloud):
-```bash
-docker run -p 8080:8080 -e GOOGLE_APPLICATION_CREDENTIALS=/app/key.json -v /ruta/local/a/tu/key.json:/app/key.json urbanplan-ai:latest
-```
+Run the container with Google Cloud credentials:
+
+docker run -p 8080:8080 -e GOOGLE_APPLICATION_CREDENTIALS=/app/key.json -v /local/path/to/key.json:/app/key.json urbanplan-ai:latest
+
+## Portfolio Value
+
+This project demonstrates:
+
+- Multi-agent orchestration.
+- Tool-calling architecture.
+- BigQuery-grounded estimation.
+- Separation between LLM reasoning and deterministic data retrieval.
+- Automated document generation.
+- MLOps-aware repository structure.
+- Docker and CI/CD readiness.
+
+The strongest architectural decision is the separation between language generation and numerical grounding. The LLM coordinates, interprets and explains. BigQuery provides the structured data foundation for estimation.
+
+## Disclaimer
+
+This is a portfolio version of a collaborative academic project. It is not a production legal, architectural or engineering advisory system.
+
+Outputs should be treated as technical demonstrations, not as official regulatory, financial or construction advice.
