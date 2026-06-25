@@ -1,7 +1,7 @@
 [project]
 name = "urbanplan-ai"
 version = "0.1.0"
-description = "Add your description here"
+description = "Multi-agent AI system for urban permit feasibility, BigQuery-grounded cost estimation and dossier generation."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

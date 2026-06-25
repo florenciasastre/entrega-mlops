@@ -1,5 +1,17 @@
 # 🏙️ UrbanPlan AI
 
+
+## Project Attribution & Role
+
+This repository is based on an academic MLOps team project.
+
+I was a contributing team member, not the sole author of the full original system. This portfolio version restructures and documents the project to present its architecture, technical scope and AI platform design more clearly.
+
+My contribution is framed around AI system understanding, repository organization, technical documentation, product positioning and architectural interpretation of the solution.
+
+The original project context and attribution are documented in `ATTRIBUTION.md`.
+
+
 Un sistema de Inteligencia Artificial basado en Arquitectura Multi-Agente diseñado para asesorar sobre viabilidad legal, presupuestos y plazos de tramitación de licencias urbanísticas y de obra.
 
 Este proyecto ha sido desarrollado utilizando **Google Agent Development Kit (ADK)** de Vertex AI, orquestando múltiples agentes potenciados por el modelo `gemini-2.5-flash`.
